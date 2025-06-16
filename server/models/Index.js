@@ -1,3 +1,5 @@
+// index.js
+
 const Sequelize = require('sequelize');
 const dbConfig = require('../config/DBConfig');
 
@@ -19,6 +21,7 @@ db.sequelize = sequelize;
 db.User = require('./UserModel')(sequelize, Sequelize);
 
 // 관계 설정
-db.Post.belongsTo(db.User);
+// db.User.hasMany(Post);
+// db.Post.belongsTo(db.User);
 
 module.exports = db;
