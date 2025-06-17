@@ -7,7 +7,7 @@ export default function Signup() {
   const nav = useNavigate();
   const [form, setForm] = useState({
     email: '',
-    code: '',
+    // code: '',               // 이메일 인증 코드 입력란 제거
     userId: '',
     password: '',
     confirmPassword: '',
@@ -18,9 +18,9 @@ export default function Signup() {
   });
 
   const [status, setStatus] = useState({
-    emailSent: false,
-    emailVerified: false,
-    userIdChecked: false,
+    // emailSent: false,      // 이메일 인증 상태 제거
+    // emailVerified: false,
+    // userIdChecked: false,  // 아이디 중복 확인 상태 제거
     error: '',
     info: '',
   });
@@ -42,71 +42,27 @@ export default function Signup() {
       [name]: type === 'checkbox' ? checked : value
     }));
     setStatus(s => ({ ...s, error: '', info: '' }));
-    if (name === 'userId') setStatus(s => ({ ...s, userIdChecked: false }));
-    if (name === 'email') {
-      setStatus(s => ({ ...s, emailSent: false, emailVerified: false }));
-    }
+    // 이메일·아이디 변경 시 인증/중복확인 리셋 로직 제거
   };
 
-  // 이메일로 인증번호 발송
-  const sendEmailCode = async () => {
-    if (!form.email) {
-      setStatus(s => ({ ...s, error: '이메일을 입력해 주세요.' }));
-      return;
-    }
-    try {
-      await api.post('/auth/send-email-code', { email: form.email }); // TODO: 백엔드 라우트 확인
-      setStatus(s => ({ ...s, emailSent: true, info: '인증번호를 발송했습니다.' }));
-    } catch {
-      setStatus(s => ({ ...s, error: '이메일 발송에 실패했습니다.' }));
-    }
-  };
+  // --- 이메일 인증 관련 함수 모두 주석처리 ---
+  /*
+  const sendEmailCode = async () => { ... }
+  const verifyEmailCode = async () => { ... }
+  */
 
-  // 인증번호 확인
-  const verifyEmailCode = async () => {
-    if (!form.code) {
-      setStatus(s => ({ ...s, error: '인증번호를 입력해 주세요.' }));
-      return;
-    }
-    try {
-      await api.post('/auth/verify-email-code', {
-        email: form.email,
-        code: form.code
-      }); // TODO
-      setStatus(s => ({ ...s, emailVerified: true, info: '이메일 인증 완료.' }));
-    } catch {
-      setStatus(s => ({ ...s, error: '인증번호가 올바르지 않습니다.' }));
-    }
-  };
-
-  // 아이디 중복 확인
-  const checkUserId = async () => {
-    if (!form.userId) {
-      setStatus(s => ({ ...s, error: '아이디를 입력해 주세요.' }));
-      return;
-    }
-    try {
-      const res = await api.get(`/auth/check-userid?userId=${form.userId}`); // TODO
-      if (res.data.available) {
-        setStatus(s => ({ ...s, userIdChecked: true, info: '사용 가능한 아이디입니다.' }));
-      } else {
-        setStatus(s => ({ ...s, error: '이미 사용 중인 아이디입니다.' }));
-      }
-    } catch {
-      setStatus(s => ({ ...s, error: '아이디 확인에 실패했습니다.' }));
-    }
-  };
+  // --- 아이디 중복 확인 함수 주석처리 ---
+  /*
+  const checkUserId = async () => { ... }
+  */
 
   const onSubmit = async e => {
     e.preventDefault();
-    if (!status.emailVerified) {
-      setStatus(s => ({ ...s, error: '이메일 인증을 완료해 주세요.' }));
-      return;
-    }
-    if (!status.userIdChecked) {
-      setStatus(s => ({ ...s, error: '아이디 중복 확인을 해 주세요.' }));
-      return;
-    }
+
+    // 이메일 인증, 아이디 중복확인 검증 로직 제거
+    // if (!status.emailVerified) { ... }
+    // if (!status.userIdChecked) { ... }
+
     if (form.password !== form.confirmPassword) {
       setStatus(s => ({ ...s, error: '비밀번호가 일치하지 않습니다.' }));
       return;
@@ -121,17 +77,21 @@ export default function Signup() {
     }
 
     try {
-      await api.post('/auth/register', {
-        email: form.email,
-        userId: form.userId,
-        password: form.password,
-        name: form.name,
-        gender: form.gender,
-        birth: form.birth,
-      }); // TODO
+      await api.post('/auth/signup', {
+        email:     form.email,
+        username:  form.userId,
+        password:  form.password,
+        name:      form.name,
+        gender:    form.gender,
+        birthDate: form.birth,
+      });
       nav('/login');
-    } catch {
-      setStatus(s => ({ ...s, error: '회원가입 중 오류가 발생했습니다.' }));
+    } catch (err) {
+      if (err.response?.data?.code === 'EMAIL_DUPLICATE') {
+       setStatus(s => ({ ...s, error: '이미 등록된 이메일입니다.' }));
+    } else {
+       setStatus(s => ({ ...s, error: '회원가입 중 오류가 발생했습니다.' }));
+      }
     }
   };
 
@@ -139,9 +99,9 @@ export default function Signup() {
     <form onSubmit={onSubmit} style={{ maxWidth: 420, margin: '0 auto' }}>
       <h2>회원가입</h2>
       {status.error && <div style={{ color: 'red', marginBottom: 12 }}>{status.error}</div>}
-      {status.info && <div style={{ color: 'green', marginBottom: 12 }}>{status.info}</div>}
+      {status.info  && <div style={{ color: 'green', marginBottom: 12 }}>{status.info}</div>}
 
-      {/* 이메일 + 인증 */}
+      {/* 이메일 입력 */}
       <div>
         <label>이메일:</label><br/>
         <input
@@ -149,50 +109,19 @@ export default function Signup() {
           type="email"
           value={form.email}
           onChange={onChange}
-          disabled={status.emailVerified}
           required
         />
-        <button
-          type="button"
-          onClick={sendEmailCode}
-          disabled={status.emailSent || status.emailVerified}
-          style={{ marginLeft: 8 }}
-        >
-          {status.emailSent ? '재전송' : '인증번호 받기'}
-        </button>
       </div>
-      {status.emailSent && !status.emailVerified && (
-        <div style={{ marginTop: 8 }}>
-          <input
-            name="code"
-            placeholder="인증번호"
-            value={form.code}
-            onChange={onChange}
-          />
-          <button type="button" onClick={verifyEmailCode} style={{ marginLeft: 8 }}>
-            인증 확인
-          </button>
-        </div>
-      )}
 
-      {/* 아이디 + 중복 확인 */}
+      {/* 아이디 입력 */}
       <div style={{ marginTop: 16 }}>
         <label>아이디:</label><br/>
         <input
           name="userId"
           value={form.userId}
           onChange={onChange}
-          disabled={status.userIdChecked}
           required
         />
-        <button
-          type="button"
-          onClick={checkUserId}
-          disabled={status.userIdChecked}
-          style={{ marginLeft: 8 }}
-        >
-          중복 확인
-        </button>
       </div>
 
       {/* 비밀번호 및 확인 */}
