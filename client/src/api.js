@@ -1,8 +1,8 @@
 // src/api.js
-/*import axios from 'axios';
+import axios from 'axios';
 
 const api = axios.create({
-  baseURL: 'http://localhost:5173/api', // TODO: 실제 백엔드 URL
+  baseURL: '/api', // TODO: 실제 백엔드 URL
 });
 
 // 요청 시 JWT 토큰 자동 추가
@@ -12,15 +12,11 @@ api.interceptors.request.use(config => {
   return config;
 });
 
-export default api;*/
+export default api;
+
 // src/api.js
 // === Mock API for Front-end Testing ===
-
-// 아주 간단히, GET /posts 요청에만 샘플 데이터를 반환합니다.
-// src/api.js
-// === Mock API for Front-end Testing ===
-
-const api = {
+/*const api = {
   get: (url) => {
     console.log(`Mock GET ${url}`);
 
@@ -69,6 +65,4 @@ const api = {
   },
 };
 
-export default api;
-
-
+export default api;*/
