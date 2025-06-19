@@ -19,9 +19,12 @@ db.Sequelize = Sequelize;
 db.sequelize = sequelize;
 
 db.User = require('./UserModel')(sequelize, Sequelize);
+db.Post = require('./PostModel')(sequelize, Sequelize);
 
 // 관계 설정
 // db.User.hasMany(Post);
 // db.Post.belongsTo(db.User);
+db.Post.belongsTo(db.User, { foreignKey: 'userId' });
+db.User.hasMany(db.Post, { foreignKey: 'userId' });
 
 module.exports = db;
