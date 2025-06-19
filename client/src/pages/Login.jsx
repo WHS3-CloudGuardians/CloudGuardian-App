@@ -5,9 +5,8 @@ import { useAuth } from '../contexts/AuthContext';
 export default function Login() {
   const { login } = useAuth();
   const [form, setForm] = useState({
-    email:    '',  // 백엔드 로그인 필드는 email
+    email:    '', 
     password: '',
-    // remember: false, // 더 이상 사용하지 않으므로 주석 처리
   });
   const [showPwd, setShowPwd] = useState(false);
   const [error, setError] = useState('');
@@ -76,20 +75,6 @@ export default function Login() {
           </div>
         </label>
       </div>
-
-      {/*
-      <div style={{ marginTop: 12 }}>
-        <label>
-          <input
-            type="checkbox"
-            name="remember"
-            checked={form.remember}
-            onChange={onChange}
-          />{' '}
-          아이디 저장
-        </label>
-      </div>
-      */}
 
       <button type="submit" style={{ marginTop: 16, width: '100%' }}>
         로그인
