@@ -1,4 +1,3 @@
-// src/pages/Signup.jsx
 import { useState } from 'react';
 import api from '../api';
 import { useNavigate } from 'react-router-dom';
@@ -42,26 +41,10 @@ export default function Signup() {
       [name]: type === 'checkbox' ? checked : value
     }));
     setStatus(s => ({ ...s, error: '', info: '' }));
-    // 이메일·아이디 변경 시 인증/중복확인 리셋 로직 제거
   };
-
-  // --- 이메일 인증 관련 함수 모두 주석처리 ---
-  /*
-  const sendEmailCode = async () => { ... }
-  const verifyEmailCode = async () => { ... }
-  */
-
-  // --- 아이디 중복 확인 함수 주석처리 ---
-  /*
-  const checkUserId = async () => { ... }
-  */
 
   const onSubmit = async e => {
     e.preventDefault();
-
-    // 이메일 인증, 아이디 중복확인 검증 로직 제거
-    // if (!status.emailVerified) { ... }
-    // if (!status.userIdChecked) { ... }
 
     if (form.password !== form.confirmPassword) {
       setStatus(s => ({ ...s, error: '비밀번호가 일치하지 않습니다.' }));
@@ -115,7 +98,7 @@ export default function Signup() {
 
       {/* 아이디 입력 */}
       <div style={{ marginTop: 16 }}>
-        <label>아이디:</label><br/>
+        <label>닉네임:</label><br/>
         <input
           name="userId"
           value={form.userId}
