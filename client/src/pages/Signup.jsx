@@ -72,7 +72,7 @@ export default function Signup() {
     } catch (err) {
       if (err.response?.data?.code === 'EMAIL_DUPLICATE') {
        setStatus(s => ({ ...s, error: '이미 등록된 이메일입니다.' }));
-    } else {
+    } else { // 수정필요
        setStatus(s => ({ ...s, error: '회원가입 중 오류가 발생했습니다.' }));
       }
     }
