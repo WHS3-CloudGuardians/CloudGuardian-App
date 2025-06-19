@@ -40,7 +40,18 @@ headers: {
   },
 */
 router.post("/me", verifyToken, (req, res) => {
-    res.json({ message: `사용자 ${req.user.id} 인증` });
+  //res.json({ message: `사용자 ${req.user.id} 인증` });
+  res.json({
+    status: 200,
+    code: "SUCCESS",
+    message: "인증된 사용자 정보",
+    data: {
+      user: {
+        id:    req.user.id,
+        email: req.user.email
+      }
+    }
+  });
 });
 
 module.exports = router;
