@@ -1,0 +1,75 @@
+/* src/index.css */
+
+/* 1. 페이지 전체 기본 폰트와 여백 제거 */
+html, body {
+  padding: 0;
+  margin: 0;
+  font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+  background-color: #fafafa;
+  color: #333;
+}
+
+/* 2. 공통 컨테이너: 최대 너비 지정 후 가로 중앙 정렬 */
+main, header, footer {
+  max-width: 800px;      /* 원하는 최대 너비 */
+  margin: 0 auto;        /* 좌우 중앙 정렬 */
+  padding: 0 16px;       /* 모바일에서 여백 확보 */
+  box-sizing: border-box;
+}
+
+/* 3. 헤더 네비게이션 스타일 (선택) */
+header {
+  padding: 16px 0;
+  border-bottom: 1px solid #e0e0e0;
+}
+header a {
+  color: #0077cc;
+  text-decoration: none;
+  margin-right: 12px;
+}
+header a:hover {
+  text-decoration: underline;
+}
+header button {
+  background: none;
+  border: none;
+  color: #0077cc;
+  cursor: pointer;
+  margin-left: 8px;
+}
+
+/* 4. 본문 여백 */
+main {
+  padding-top: 24px;
+  padding-bottom: 24px;
+}
+
+/* 5. 간단한 반응형 폼 & 리스트 스타일 (선택) */
+input, select, textarea, button {
+  font-size: 1rem;
+  padding: 8px;
+  border: 1px solid #ccc;
+  border-radius: 4px;
+}
+input, select, textarea {
+  width: 100%;
+  box-sizing: border-box;
+  margin-bottom: 12px;
+}
+button {
+  background-color: #0077cc;
+  color: white;
+  border: none;
+  cursor: pointer;
+}
+button:disabled {
+  background-color: #aaa;
+  cursor: default;
+}
+ul {
+  list-style: none;
+  padding: 0;
+}
+li + li {
+  margin-top: 8px;
+}
