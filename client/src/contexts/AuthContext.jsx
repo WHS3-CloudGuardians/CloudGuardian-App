@@ -14,11 +14,11 @@ export function AuthProvider({ children }) {
   useEffect(() => {
     const token = localStorage.getItem('token');
     if (token) {
-      api.get('/auth/me')
+      api.post('/auth/me')
         .then(res => {
-          setUser(res.data.user || res.data); // 백엔드 응답에 맞춰 user 정보 세팅
+          setUser(res.data.data.user);
         })
-        .catch(() => { localStorage.removeItem('token'); })
+        .catch(err => { console.error('❌ /auth/me 실패:', err); localStorage.removeItem('token'); })
         .finally(() => setLoading(false));
     } else {
       setLoading(false);
