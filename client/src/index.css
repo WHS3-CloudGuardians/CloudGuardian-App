@@ -17,47 +17,62 @@ main, header, footer {
   box-sizing: border-box;
 }
 
-/* 3. 헤더 네비게이션 스타일 (선택) */
+/* 3. 헤더 네비게이션 스타일 */
 header {
+  display: flex;
+  align-items: center;
+  /*justify-content: center;*/
+  gap: 2rem;                    /* link ⋮ button 사이 간격 */
   padding: 16px 0;
   border-bottom: 1px solid #e0e0e0;
 }
-header a {
+
+header a,
+header button {
+  /* 텍스트 스타일 통일 */
+  font-family: inherit;
+  font-size: 1rem;
+  font-weight: 500;
+  line-height: normal;
+
+  /* 색상 통일 */
   color: #0077cc;
   text-decoration: none;
-  margin-right: 12px;
-}
-header a:hover {
-  text-decoration: underline;
-}
-header button {
+
+  /* 버튼 기본 스타일 리셋 */
   background: none;
   border: none;
-  color: #0077cc;
   cursor: pointer;
-  margin-left: 8px;
+  padding: 0;
+}
+
+header a:hover,
+header button:hover {
+  text-decoration: underline;
 }
 
 /* 4. 본문 여백 */
 main {
   padding-top: 24px;
   padding-bottom: 24px;
-}
+} */
 
-/* 5. 간단한 반응형 폼 & 리스트 스타일 (선택) */
+/* 5. 간단한 반응형 폼 & 리스트 스타일 */
 input, select, textarea, button {
-  font-size: 1rem;
-  padding: 8px;
+  font-size: 1.05rem;
   border: 1px solid #ccc;
   border-radius: 4px;
+  margin-bottom: 12px;
 }
 input, select, textarea {
+  padding: 3px;
   width: 100%;
   box-sizing: border-box;
-  margin-bottom: 12px;
+  margin-bottom: 11px;
 }
 button {
   background-color: #0077cc;
+  padding: 4.5px;
   color: white;
   border: none;
   cursor: pointer;
