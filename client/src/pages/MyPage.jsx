@@ -2,15 +2,15 @@
 import { useState, useEffect } from 'react';
 import api from '../api';
 import { useAuth } from '../contexts/AuthContext';
+import { useNavigate } from "react-router-dom";
 
 export default function MyPage() {
   const { user, logout } = useAuth();
   const [info, setInfo] = useState({
+    email:'',
     nickname: '',
     newPassword: '',
     confirmPassword: '',
-    profileFile: null,
-    profilePreview: '',
     name: '',
     gender: '',
     birth: '',
@@ -24,12 +24,12 @@ export default function MyPage() {
   // 초기 정보 불러오기
   useEffect(() => {
     if (!user) return;
-    api.get('/users/me')  // TODO: GET /api/users/me
+    api.get('/auth/me')  // TODO: GET /api/auth/me
       .then(r => {
         setInfo(f => ({
           ...f,
+          email: r.data.email,
           nickname: r.data.nickname,
-          profilePreview: r.data.profileUrl,
           name: r.data.name,
           gender: r.data.gender,
           birth: r.data.birth,
@@ -45,15 +45,6 @@ export default function MyPage() {
     setInfo(f => ({ ...f, [name]: value }));
     setStatus(s => ({ ...s, error: '', infoMsg: '' }));
     if (name === 'nickname') setStatus(s => ({ ...s, nickChecked: false }));
-  };
-
-  // 프로필 이미지 선택
-  const onFile = e => {
-    const file = e.target.files[0];
-    if (file) {
-      const url = URL.createObjectURL(file);
-      setInfo(f => ({ ...f, profileFile: file, profilePreview: url }));
-    }
   };
 
   // 닉네임 중복 확인
@@ -88,7 +79,7 @@ export default function MyPage() {
         return;
       }
     }
-    // 개인정보 동의 없음
+ 
     // 닉네임 체크 누락
     if (!status.nickChecked) {
       setStatus(s => ({ ...s, error: '닉네임 중복 확인을 해 주세요.' }));
@@ -96,23 +87,25 @@ export default function MyPage() {
     }
 
     try {
-      const formData = new FormData();
-      formData.append('nickname', info.nickname);
-      formData.append('name', info.name);
-      formData.append('gender', info.gender);
-      formData.append('birth', info.birth);
-      if (info.newPassword) formData.append('password', info.newPassword);
-      if (info.profileFile) formData.append('profile', info.profileFile);
+      const data = {};
+      if (info.nickname) data.nickname = info.nickname;
+      if (info.newPassword) data.password = info.newPassword;
+      if (info.gender) data.gender = info.gender;
+      if (info.birth) data.birth = info.birth.slice(0, 10);
 
-      await api.put('/users/me', formData, {
-        headers: { 'Content-Type': 'multipart/form-data' }
-      }); // TODO: PUT /api/users/me
+      await api.put('/auth/me', data);
 
       setStatus(s => ({ ...s, infoMsg: '저장되었습니다.', error: '' }));
-    } catch {
+    } catch (error) {
+      console.error("저장 중 오류:", error); // ✅ 에러 정보 출력
       setStatus(s => ({ ...s, error: '저장 중 오류가 발생했습니다.' }));
     }
   };
+
+  const navigate = useNavigate();
+  const onDelete = () => {
+    navigate("/delete");
+  };  
 
   return (
     <div style={{ maxWidth: 500, margin: '0 auto'}}>
@@ -121,15 +114,14 @@ export default function MyPage() {
       {status.infoMsg && <div style={{ color: 'green' }}>{status.infoMsg}</div>}
 
       <div style={{ marginTop: 12 }}>
-        <label>프로필 이미지:</label><br />
-        {info.profilePreview && <img src={info.profilePreview} alt="profile" width={100} style={{ display: 'block', marginBottom: 8 }} />}
-        <input type="file" accept="image/*" onChange={onFile} />
+        <label>이메일:</label><br />
+        <input name="email" value={info.email} onChange={onChange} readOnly />
       </div>
 
       <div style={{ marginTop: 12 }}>
         <label>닉네임:</label><br />
         <input name="nickname" value={info.nickname} onChange={onChange} />
-        <button type="button" onClick={checkNickname} disabled={status.nickChecked} style={{ marginLeft: 8 }}>
+        <button type="button" onClick={checkNickname} disabled={status.nickChecked} style={{ marginLeft: 0 }}>
           중복 확인
         </button>
       </div>
@@ -146,11 +138,11 @@ export default function MyPage() {
 
       <div style={{ marginTop: 12 }}>
         <label>이름:</label><br />
-        <input name="name" value={info.name} onChange={onChange} />
+        <input name="name" value={info.name} onChange={onChange} readOnly />
       </div>
       <div style={{ marginTop: 8 }}>
         <label>성별:</label><br />
-        <select name="gender" value={info.gender} onChange={onChange}>
+        <select name="gender" value={info.gender} onChange={onChange} >
           <option value="">선택</option>
           <option value="male">남성</option>
           <option value="female">여성</option>
@@ -165,8 +157,9 @@ export default function MyPage() {
       <button type="button" onClick={onSave} style={{ marginTop: 16, width: '100%' }}>
         저장
       </button>
-
-      {/* 내 글, 댓글 조회 섹션은 기존 구현 유지 */}
+      <button type="button" onClick={onDelete} style={{  backgroundColor: 'red', marginTop: 16, width: '100%' }}>
+        회원탈퇴
+      </button>
     </div>
   );
 }
