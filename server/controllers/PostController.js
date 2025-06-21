@@ -42,7 +42,7 @@ exports.listPosts = async (req, res, next) => {
       id:        p.id,
       board:     p.board,
       title:     p.title,
-      author:    p.User.username,
+      author:    p.User?.username ?? '탈퇴한 회원',
       views:     p.viewCount,
       createdAt: p.createdAt
     }));
@@ -96,7 +96,7 @@ exports.getPostById = async (req, res, next) => {
       title:     post.title,
       content:   post.content,
       mediaUrl:  post.mediaUrl,
-      author:    post.User.username,
+      author:    post.User?.username ?? '탈퇴한 회원', 
       userId:    post.userId,
       views:     post.viewCount, // increment 한 뒤의 값
       createdAt: post.createdAt,
