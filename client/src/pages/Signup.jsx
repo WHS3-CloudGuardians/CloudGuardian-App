@@ -6,8 +6,7 @@ export default function Signup() {
   const nav = useNavigate();
   const [form, setForm] = useState({
     email: '',
-    // code: '',               // 이메일 인증 코드 입력란 제거
-    userId: '',
+    username: '',
     password: '',
     confirmPassword: '',
     name: '',
@@ -17,9 +16,6 @@ export default function Signup() {
   });
 
   const [status, setStatus] = useState({
-    // emailSent: false,      // 이메일 인증 상태 제거
-    // emailVerified: false,
-    // userIdChecked: false,  // 아이디 중복 확인 상태 제거
     error: '',
     info: '',
   });
@@ -62,7 +58,7 @@ export default function Signup() {
     try {
       await api.post('/auth/signup', {
         email:     form.email,
-        username:  form.userId,
+        username:  form.username,
         password:  form.password,
         name:      form.name,
         gender:    form.gender,
@@ -72,7 +68,9 @@ export default function Signup() {
     } catch (err) {
       if (err.response?.data?.code === 'EMAIL_DUPLICATE') {
        setStatus(s => ({ ...s, error: '이미 등록된 이메일입니다.' }));
-    } else { // 수정필요
+      } else if (err.response?.data?.code === 'NICKNAME_DUPLICATE') {
+        setStatus(s => ({ ...s, error: '이미 등록된 닉네임입니다.' }));
+      } else {
        setStatus(s => ({ ...s, error: '회원가입 중 오류가 발생했습니다.' }));
       }
     }
@@ -100,8 +98,8 @@ export default function Signup() {
       <div style={{ marginTop: 16 }}>
         <label>닉네임:</label><br/>
         <input
-          name="userId"
-          value={form.userId}
+          name="username"
+          value={form.username}
           onChange={onChange}
           required
         />
