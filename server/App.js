@@ -22,11 +22,6 @@ app.use(express.json());
 app.use("/api", postRoutes);
 app.use("/api/auth", authRoutes);
 
-// 루트 라우터 (테스트용)
-app.get('/', (req, res) => {
-  res.send('<h1>Hello, Node.js 앱이 실행 중입니다!</h1>');
-});
-
 // 정적 파일 제공
 app.use(express.static(path.join(__dirname, '../client/dist')));
 
