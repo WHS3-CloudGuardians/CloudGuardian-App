@@ -39,5 +39,13 @@ db.sequelize.sync().then(() => {
   );
 });
 
+//사용 금지
+/* db.sequelize.sync({ force: true }).then(() => {
+  console.log('⚠️ DB 초기화됨 (force: true)');
+  app.listen(PORT, () =>
+    console.log(`서버 실행 중: http://localhost:${PORT}`)
+  );
+}); */
+
 // 에러 핸들러 사용
 app.use(errorHandler);
