@@ -1,4 +1,3 @@
-// app.js
 require('dotenv').config();
 const express = require('express');
 const cors = require('cors');
@@ -16,35 +15,34 @@ app.use(cors({
   origin: 'http://localhost:5173'
 }));
 
-// 루트 라우터
-// app.get('/', (req, res) => {
-//   res.send('<h1>Hello, Node.js 앱이 실행 중입니다!</h1>');
-// });
-
-// JSON 파서 추가
+// JSON 파서
 app.use(express.json());
 
 // API 라우터
 app.use("/api", postRoutes);
 app.use("/api/auth", authRoutes);
 
+// 루트 라우터 (테스트용)
+app.get('/', (req, res) => {
+  res.send('<h1>Hello, Node.js 앱이 실행 중입니다!</h1>');
+});
+
 // 정적 파일 제공
-// app.use(express.static(path.join(__dirname, 'public')));
 app.use(express.static(path.join(__dirname, '../client/dist')));
 
 // 리액트 라우팅 대응
-app.get('*', (req, res) => {
+app.get(/^\/(?!api).*/, (req, res) => {
   res.sendFile(path.join(__dirname, '../client/dist/index.html'));
 });
 
-// 에러 핸들러 사용
+// 에러 핸들러
 app.use(errorHandler);
 
-// DB 연결 및 서버 실행
+// DB 연결 및 서버 시작 (맨 마지막에 listen)
 db.sequelize.sync({ force: false }).then(() => {
   app.listen(PORT, () => 
-    console.log(`서버 실행 중: http://localhost:${PORT}`)
+    console.log(`✅ 서버 실행 중: http://localhost:${PORT}`)
   );
 }).catch(err => {
-  console.error("DB 연결 실패:", err);
+  console.error("❌ DB 연결 실패:", err);
 });
