@@ -36,5 +36,6 @@ const ERROR_CODES = {
   WRONG_PASSWORD: { status: 401, code: "WRONG_PASSWORD", message: "비밀번호가 일치하지 않습니다." },
   VALIDATION_ERROR: { status: 400, code: "VALIDATION_ERROR", message: "입력값이 올바르지 않습니다." },
   EMAIL_DUPLICATE: { status: 400, code: "EMAIL_DUPLICATE",message: "이미 등록된 이메일입니다." },
+  NICKNAME_DUPLICATE: { status: 400, code: "NICKNAME_DUPLICATE",message: "이미 등록된 닉네임입니다." },
   SERVER_ERROR: { status: 500, code: "SERVER_ERROR", message: "서버 내부 오류가 발생했습니다." }
 };
