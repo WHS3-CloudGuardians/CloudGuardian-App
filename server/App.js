@@ -9,20 +9,11 @@ const db = require("./models");
 const { errorHandler } = require("./utils/Response");
 
 const app = express();
-const PORT = 3000;
+const PORT = process.env.PORT;
 
 app.use(cors({
   origin: 'http://localhost:5173'
 }));
-
-// JSON 파서 추가
-app.use(express.json());
-app.use("/api", postRoutes);
-app.use("/api/auth", authRoutes);
-
-// 정적 파일 제공
-// app.use(express.static(path.join(__dirname, 'public')));
-app.use(express.static(path.join(__dirname, '../client/dist')));
 
 // 루트 라우터
 app.get('/', (req, res) => {
@@ -36,14 +27,19 @@ db.sequelize.sync().then(() => {
   );
 });
 
+// JSON 파서 추가
+app.use(express.json());
+app.use("/api", postRoutes);
+app.use("/api/auth", authRoutes);
+
 // 에러 핸들러 사용
 app.use(errorHandler);
 
+// 정적 파일 제공
+// app.use(express.static(path.join(__dirname, 'public')));
+app.use(express.static(path.join(__dirname, '../client/dist')));
+
 // 리액트 라우팅 대응
 app.get('*', (req, res) => {
-  res.sendFile(path.join(__dirname, '../client/build/index.html'));
-});
-// 서버 실행
-app.listen(PORT, () => {
-  console.log(`✅ 서버가 실행되었습니다: http://localhost:${PORT}`);
+  res.sendFile(path.join(__dirname, '../client/dist/index.html'));
 });
