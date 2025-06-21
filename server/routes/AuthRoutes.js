@@ -9,7 +9,7 @@ const verifyToken = require("../middlewares/AuthMiddleware.js");
 router.post("/signup",
   [
     body("email").isEmail().withMessage("유효한 이메일 형식이 아닙니다."),
-    body("username").notEmpty().withMessage("아이디는 필수입니다."),
+    body("username").notEmpty().withMessage("닉네임은 필수입니다."),
     body("password").isLength({ min: 8 }).withMessage("비밀번호는 최소 8자 이상"),
     body("name").notEmpty(),
     body("gender").isIn(["male", "female", "other"]),
@@ -53,5 +53,27 @@ router.post("/me", verifyToken, (req, res) => {
     }
   });
 });
+
+// 마이페이지
+router.get("/me", verifyToken, authController.getMyInfo);
+
+// 닉네임 중복 검사
+router.get("/check-nickname", verifyToken, authController.checkNickname);
+
+// 마이페이지 수정 (비밀번호, 성별, 생년월일)
+router.put("/me", verifyToken,[
+    body("username").optional().isLength({ min: 1 }).withMessage("닉네임은 최소 1자 이상이어야 합니다."),
+    body("gender").optional().isIn(["male", "female", "other"]).withMessage("성별은 male, female, other 중 하나여야 합니다."),
+    body("birth").optional().isDate().withMessage("생년월일 형식이 잘못되었습니다 (YYYY-MM-DD)"),
+    body("password")
+      .optional()
+      .isLength({ min: 8 }).withMessage("비밀번호는 최소 8자 이상이어야 합니다.")
+      .matches(/[A-Za-z]/).withMessage("비밀번호에 영문자를 포함해야 합니다.")
+      .matches(/\d/).withMessage("비밀번호에 숫자를 포함해야 합니다.")
+      .matches(/[!@#$%^&*(),.?":{}|<>]/).withMessage("비밀번호에 특수문자를 포함해야 합니다.")
+  ], authController.updateMyInfo);
+
+// 회원탈퇴
+router.delete("/", verifyToken, authController.deleteMyAccount);
 
 module.exports = router;
