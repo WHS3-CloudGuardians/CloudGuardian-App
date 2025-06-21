@@ -41,7 +41,7 @@ app.get('*', (req, res) => {
 app.use(errorHandler);
 
 // DB 연결 및 서버 실행
-db.sequelize.sync().then(() => {
+db.sequelize.sync({ force: false }).then(() => {
   app.listen(PORT, () => 
     console.log(`서버 실행 중: http://localhost:${PORT}`)
   );
