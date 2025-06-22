@@ -35,7 +35,7 @@ app.use(errorHandler);
 
 // DB 연결 및 서버 시작 (맨 마지막에 listen)
 db.sequelize.sync({ force: false }).then(() => {
-  app.listen(PORT, () => 
+  app.listen(PORT, '0.0.0.0', () => 
     console.log(`✅ 서버 실행 중: http://localhost:${PORT}`)
   );
 }).catch(err => {
