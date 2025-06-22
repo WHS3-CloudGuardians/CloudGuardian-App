@@ -1,5 +1,6 @@
 // app.js
 require('dotenv').config();
+const redis = require('./redis');
 const express = require('express');
 const cors = require('cors');
 const path = require('path');
