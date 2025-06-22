@@ -1,6 +1,7 @@
 // server/controllers/PostController.js
 const fs   = require('fs');
 const path = require('path');
+const redis = require('../redis');
 const db = require('../models');
 const Post = db.Post;
 const User = db.User;
@@ -15,29 +16,38 @@ exports.createPost = async (req, res, next) => {
       mediaUrl,
       userId: req.user.id
     });
+    await invalidatePostCache();
     res.status(201).json({ status:201, code:'SUCCESS', message:'글 작성 성공', data:{ post } });
   } catch (err) {
     next(err);
   }
 };
 
+// GET /api/posts
 exports.listPosts = async (req, res, next) => {
   try {
     const page  = parseInt(req.query.page  || '1', 10);
-    const board = req.query.board === 'all' ? null : req.query.board;
-    const limit = 10;
-    const where = board ? { board } : {};
+    const board = req.query.board === 'all' ? 'all' : req.query.board;
+    const cacheKey = `posts:${board}:page:${page}`;
 
+    // 1) 캐시 확인
+    const cached = await redis.get(cacheKey);
+    if (cached) {
+      return res.json(JSON.parse(cached));
+    }
+
+    // 2) DB 조회
+    const limit = 10;
+    const where = board !== 'all' ? { board } : {};
     const { count, rows } = await Post.findAndCountAll({
       where,
       offset: (page - 1) * limit,
       limit,
       order: [['createdAt', 'DESC']],
-      include: [{ model: db.User, attributes: ['username'] }]
+      include: [{ model: User, attributes: ['username'] }]
     });
 
     const totalPages = Math.ceil(count / limit);
-    // rows 안의 User.username을 author 로 복제
     const items = rows.map(p => ({
       id:        p.id,
       board:     p.board,
@@ -47,7 +57,12 @@ exports.listPosts = async (req, res, next) => {
       createdAt: p.createdAt
     }));
 
-    return res.json({ items, totalPages });
+    const payload = { items, totalPages };
+
+    // 3) 캐시에 저장 (TTL 60초)
+    await redis.set(cacheKey, JSON.stringify(payload), 'EX', 30);
+
+    return res.json(payload);
   } catch (err) {
     next(err);
   }
@@ -55,60 +70,68 @@ exports.listPosts = async (req, res, next) => {
 
 exports.listBoards = async (req, res, next) => {
   try {
-    // 예시: 하드코딩된 게시판 목록
+    const cacheKey = 'boards';
+    const cached = await redis.get(cacheKey);
+    if (cached) return res.json(JSON.parse(cached));
+
     const boards = [
-      { key: 'all',   name: '전체'   },
-      { key: 'free',   name: '자유' },
-      { key: 'inform',  name: '정보'   },
-      // 필요에 따라 모델로 뽑아오셔도 됩니다
+      { key: 'all',   name: '전체' },
+      { key: 'free',  name: '자유' },
+      { key: 'inform',name: '정보' }
     ];
+    // TTL 300초 예시
+    await redis.set(cacheKey, JSON.stringify(boards), 'EX', 300);
     res.json(boards);
   } catch (err) {
     next(err);
   }
 };
 
+// GET /api/posts/:postId
 exports.getPostById = async (req, res, next) => {
   try {
     const postId = req.params.postId;
+    const cacheKey = `post:${postId}`;
 
-    // 1) 게시글 조회 (작성자 정보 포함)
+    // 캐시 확인
+    const cached = await redis.get(cacheKey);
+    if (cached) {
+      // 캐시된 응답은 { status, code, message, data:{ post } }
+      return res.json(JSON.parse(cached));
+    }
+
+    // DB 조회 + 조회수 증가 등...
     const post = await Post.findByPk(postId, {
       include: [{ model: User, attributes: ['username'] }]
     });
+    if (!post) return res.status(404).json({ /* ... */ });
 
-    if (!post) {
-      return res.status(404).json({
-        status: 404,
-        code: 'NOT_FOUND',
-        message: '존재하지 않는 게시글입니다.'
-      });
-    }
-
-    // 2) 조회수 1 증가
     await post.increment('viewCount');
     await post.reload();
 
-    // 3) 응답 데이터 포맷으로 가공
     const result = {
       id:        post.id,
       board:     post.board,
       title:     post.title,
       content:   post.content,
       mediaUrl:  post.mediaUrl,
-      author:    post.User?.username ?? '탈퇴한 회원', 
+      author:    post.User?.username ?? '탈퇴한 회원',
       userId:    post.userId,
-      views:     post.viewCount, // increment 한 뒤의 값
+      views:     post.viewCount,
       createdAt: post.createdAt,
       updatedAt: post.updatedAt,
     };
-
-    return res.json({
+    const response = {
       status: 200,
       code: 'SUCCESS',
       message: '게시글 조회 성공',
       data: { post: result }
-    });
+    };
+
+    // 캐시에 저장 (TTL 60초)
+    await redis.set(cacheKey, JSON.stringify(response), 'EX', 30);
+
+    return res.json(response);
   } catch (err) {
     next(err);
   }
@@ -135,11 +158,13 @@ exports.updatePost = async (req, res, next) => {
       ...(mediaUrl !== undefined ? { mediaUrl } : {})
     });
 
+    await invalidatePostCache();
     return res.json({ status:200, code:'SUCCESS', message:'수정 성공', data:{ post } });
   } catch (err) {
     next(err);
   }
 };
+
 // DELETE /api/posts/:postId
 exports.deletePost = async (req, res, next) => {
   try {
@@ -158,8 +183,26 @@ exports.deletePost = async (req, res, next) => {
         }
       });
     }
-    return res.json({ status:200, code:'SUCCESS', essage:'삭제 성공' });
+    await invalidatePostCache();
+    return res.json({ status:200, code:'SUCCESS', message:'삭제 성공' });
   } catch (err) {
     next(err);
   }
 };
+
+// POST, PUT, DELETE 후 캐시 무효화
+async function invalidatePostCache() {
+  const keys = await redis.keys('posts:*');
+  if (keys.length) await redis.del(...keys);
+  await redis.del('boards');
+}
+
+// 성능 이슈 있으면 이걸로 수정
+/* async function invalidatePostCache() {
+  const stream = redis.scanStream({ match: 'posts:*' });
+  const pipeline = redis.pipeline();
+  stream.on('data', (keys = []) => keys.forEach(key => pipeline.del(key)));
+  await new Promise(resolve => stream.on('end', resolve));
+  await pipeline.exec();
+  await redis.del('boards');
+} */
