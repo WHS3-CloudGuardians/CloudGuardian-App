@@ -158,7 +158,7 @@ exports.deletePost = async (req, res, next) => {
         }
       });
     }
-    return res.json({ status:200, code:'SUCCESS', essage:'삭제 성공' });
+    return res.json({ status:200, code:'SUCCESS', message:'삭제 성공' });
   } catch (err) {
     next(err);
   }
