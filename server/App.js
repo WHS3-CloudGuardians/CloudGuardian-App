@@ -9,10 +9,10 @@ const db = require("./models");
 const { errorHandler } = require("./utils/Response");
 
 const app = express();
-const PORT = 3000;
+const PORT = 8080;
 
 app.use(cors({
-  origin: 'http://localhost:5173'
+  origin: 'http://localhost'
 }));
 
 // console.log(process.env.JWT_SECRET);
