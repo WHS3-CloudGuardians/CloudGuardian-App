@@ -32,9 +32,9 @@ app.get('/health', (req, res) => {
 // app.use(express.static(path.join(__dirname, '../client/dist')));
 
 // 리액트 라우팅 대응
-app.get(/^\/(?!api).*/, (req, res) => {
-  res.sendFile(path.join(__dirname, '../client/dist/index.html'));
-});
+// app.get(/^\/(?!api).*/, (req, res) => {
+//  res.sendFile(path.join(__dirname, '../client/dist/index.html'));
+// });
 
 // 에러 핸들러
 app.use(errorHandler);
