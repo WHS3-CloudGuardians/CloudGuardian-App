@@ -21,6 +21,9 @@ app.use(express.json());
 // API 라우터
 app.use("/api", postRoutes);
 app.use("/api/auth", authRoutes);
+app.get('/health', (req, res) => {
+  res.status(200).send('OK');
+});
 
 // 정적 파일 제공
 app.use(express.static(path.join(__dirname, '../client/dist')));
