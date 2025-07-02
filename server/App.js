@@ -26,7 +26,7 @@ app.get('/health', (req, res) => {
 });
 
 // 정적 파일 제공
-app.use(express.static(path.join(__dirname, '../client/dist')));
+// app.use(express.static(path.join(__dirname, '../client/dist')));
 
 // 리액트 라우팅 대응
 app.get(/^\/(?!api).*/, (req, res) => {
