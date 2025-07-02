@@ -11,12 +11,12 @@ const app = express();
 const PORT = process.env.PORT || 3000;
 
 // CORS 설정 (개발환경)
-/*
-app.use(cors({
-  origin: 'http://localhost:5173'
-}));
-*/
-app.use(cors());
+const corsOptions = {
+  origin: 'https://www.cloudguardian.site',
+  methods: ['GET', 'POST', 'PUT', 'DELETE'],
+  credentials: true,
+};
+app.use(cors(corsOptions));
 
 // JSON 파서
 app.use(express.json());
