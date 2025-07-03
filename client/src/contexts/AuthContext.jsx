@@ -12,9 +12,10 @@ export function AuthProvider({ children }) {
 
   // 앱 시작 시 쿠키 기반 사용자 정보 불러오기
   useEffect(() => {
-  api.get('/auth/me')
+  api.post('/auth/me')
     .then(res => {
-      setUser(res.data.user);
+      console.log(res.data.data.user);
+      setUser(res.data.data.user);
     })
     .catch(err => {
       console.error('❌ /auth/me 실패:', err);
@@ -25,7 +26,8 @@ export function AuthProvider({ children }) {
   const login = async ({ email, password }) => {
     await api.post('/auth/login', { email, password });
     const res = await api.get('/auth/me'); // 쿠키로 자동 인증됨
-    setUser(res.data.user);
+    const payload = res.data.data || res.data;
+    setUser(payload.user);
     nav('/');
   };
 
