@@ -10,33 +10,26 @@ export function AuthProvider({ children }) {
   const [loading, setLoading] = useState(true);
   const nav = useNavigate();
 
-  // 앱 시작 시 토큰이 있으면 사용자 정보 불러오기
+  // 앱 시작 시 쿠키 기반 사용자 정보 불러오기
   useEffect(() => {
-    const token = localStorage.getItem('token');
-    if (token) {
-      api.post('/auth/me')
-        .then(res => {
-          setUser(res.data.data.user);
-        })
-        .catch(err => { console.error('❌ /auth/me 실패:', err); localStorage.removeItem('token'); })
-        .finally(() => setLoading(false));
-    } else {
-      setLoading(false);
-    }
+  api.get('/auth/me')
+    .then(res => {
+      setUser(res.data.user);
+    })
+    .catch(err => {
+      console.error('❌ /auth/me 실패:', err);
+    })
+    .finally(() => setLoading(false));
   }, []);
 
   const login = async ({ email, password }) => {
-    const res = await api.post('/auth/login', { email, password });
-    // 백엔드가 { data: { accessToken, user } } 형태로 반환
-    const payload = res.data.data || res.data;
-    const { accessToken, user } = payload;
-    localStorage.setItem('token', accessToken);
-    setUser(user);
+    await api.post('/auth/login', { email, password });
+    const res = await api.get('/auth/me'); // 쿠키로 자동 인증됨
+    setUser(res.data.user);
     nav('/');
   };
 
   const logout = () => {
-    localStorage.removeItem('token');
     setUser(null);
     nav('/login');
   };

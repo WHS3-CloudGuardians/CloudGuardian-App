@@ -9,6 +9,7 @@ const User = db.User;
 exports.signup = async (req, res, next) => {
   // 요청 유효성 검사 결과 체크
   const errors = validationResult(req);
+  console.log('💡 회원가입 요청 데이터:', req.body);
   if (!errors.isEmpty()) {
     return res.status(400).json({
       status: 400,
@@ -65,10 +66,14 @@ exports.login = async (req, res, next) => {
       { expiresIn: process.env.JWT_EXPIRES_IN || "1h" }
     );
 
-    return successResponse(res, {
-      accessToken: token,
-      user: { id: user.id, email: user.email }
-    }, "로그인 성공");
+    res.cookie('jwt', token, {
+      httpOnly: true,     // JS에서 접근 불가 (XSS 방지)
+      secure: false,       // HTTPS 환경에서만 쿠키 전송
+      sameSite: 'Lax', // 외부 사이트에서 요청 불가 (CSRF 방지)
+      maxAge: 30 * 60 * 1000
+    });
+
+    return successResponse(res, { user: { id: user.id, email: user.email } }, "로그인 성공");
 
   } catch (err) {
     next(err);

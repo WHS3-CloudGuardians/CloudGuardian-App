@@ -23,6 +23,15 @@ router.post("/login",
     body("password").isLength({ min: 8 }).withMessage("비밀번호는 최소 8자 이상"),
   ], authController.login);
 
+// 로그아웃
+router.post('/auth/logout', (req, res) => {
+  res.clearCookie('jwt', {
+    httpOnly: true,
+    secure: true,
+    sameSite: 'Strict',
+  });
+  res.json({ message: '로그아웃 완료' });
+});
 
 // 사용자 인증
 router.post("/me", verifyToken, (req, res) => {

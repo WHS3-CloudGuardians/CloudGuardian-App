@@ -1,5 +1,6 @@
 require('dotenv').config();
 const express = require('express');
+const cookieParser = require('cookie-parser');
 const cors = require('cors');
 const path = require('path');
 const authRoutes = require("./routes/AuthRoutes");
@@ -11,15 +12,24 @@ const app = express();
 const PORT = process.env.PORT || 3000;
 
 // CORS 설정 (개발환경)
+/*
 const corsOptions = {
   origin: 'https://www.cloudguardian.site',
   methods: ['GET', 'POST', 'PUT', 'DELETE'],
   credentials: true,
 };
 app.use(cors(corsOptions));
+*/
+app.use(cors({
+  origin: 'http://localhost:5173',   // 클라이언트 주소
+  credentials: true                  // 쿠키 허용
+}));
 
 // JSON 파서
 app.use(express.json());
+
+// cookie 파서
+app.use(cookieParser());
 
 // API 라우터
 app.use("/api", postRoutes);
@@ -27,14 +37,6 @@ app.use("/api/auth", authRoutes);
 app.get('/health', (req, res) => {
   res.status(200).send('OK');
 });
-
-// 정적 파일 제공
-// app.use(express.static(path.join(__dirname, '../client/dist')));
-
-// 리액트 라우팅 대응
-// app.get(/^\/(?!api).*/, (req, res) => {
-//  res.sendFile(path.join(__dirname, '../client/dist/index.html'));
-// });
 
 // 에러 핸들러
 app.use(errorHandler);
