@@ -65,14 +65,6 @@ exports.login = async (req, res, next) => {
       process.env.JWT_SECRET,
       { expiresIn: process.env.JWT_EXPIRES_IN || "1h" }
     );
-    
-    // 로컬 테스트용
-    // res.cookie('jwt', token, {
-    //   httpOnly: true,     // JS에서 접근 불가 (XSS 방지)
-    //   secure: false,       // HTTPS 환경에서만 쿠키 전송
-    //   sameSite: 'Lax', // 외부 사이트에서 요청 불가 (CSRF 방지)
-    //   maxAge: 30 * 60 * 1000
-    // });
 
     res.cookie('jwt', token, {
       httpOnly: true,       // JavaScript 접근 불가 → XSS 방지
@@ -82,7 +74,6 @@ exports.login = async (req, res, next) => {
     });
 
     return successResponse(res, { user: { id: user.id, email: user.email } }, "로그인 성공");
-
   } catch (err) {
     next(err);
   }
@@ -94,14 +85,15 @@ exports.getMyInfo = async (req, res, next) => {
     const user = await User.findByPk(req.user.id);
     if (!user) throw errorResponse("USER_NOT_FOUND");
 
-    res.json({
+    const myInfo = {
       email: user.email,
       username: user.username,
       name: user.name,
       gender: user.gender,
       birth: user.birthDate,
-    });
+    };
 
+    return successResponse(res, { user: myInfo }, "사용자 정보 조회 성공");
   } catch (err) {
     next(err);
   }

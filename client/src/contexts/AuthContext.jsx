@@ -14,8 +14,8 @@ export function AuthProvider({ children }) {
   useEffect(() => {
   api.post('/auth/me')
     .then(res => {
-      console.log(res.data.data.user);
-      setUser(res.data.data.user);
+      const me = res.data.data.user;
+      setUser(me);
     })
     .catch(err => {
       console.error('❌ /auth/me 실패:', err);
@@ -26,8 +26,8 @@ export function AuthProvider({ children }) {
   const login = async ({ email, password }) => {
     await api.post('/auth/login', { email, password });
     const res = await api.get('/auth/me'); // 쿠키로 자동 인증됨
-    const payload = res.data.data || res.data;
-    setUser(payload.user);
+    const me = res.data.data.user;
+    setUser(me);
     nav('/');
   };
 
