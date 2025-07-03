@@ -65,11 +65,19 @@ exports.login = async (req, res, next) => {
       process.env.JWT_SECRET,
       { expiresIn: process.env.JWT_EXPIRES_IN || "1h" }
     );
+    
+    // 로컬 테스트용
+    // res.cookie('jwt', token, {
+    //   httpOnly: true,     // JS에서 접근 불가 (XSS 방지)
+    //   secure: false,       // HTTPS 환경에서만 쿠키 전송
+    //   sameSite: 'Lax', // 외부 사이트에서 요청 불가 (CSRF 방지)
+    //   maxAge: 30 * 60 * 1000
+    // });
 
     res.cookie('jwt', token, {
-      httpOnly: true,     // JS에서 접근 불가 (XSS 방지)
-      secure: false,       // HTTPS 환경에서만 쿠키 전송
-      sameSite: 'Lax', // 외부 사이트에서 요청 불가 (CSRF 방지)
+      httpOnly: true,       // JavaScript 접근 불가 → XSS 방지
+      secure: true,         // HTTPS에서만 쿠키 전송 → 중간자 공격 방지
+      sameSite: 'Strict',   // 크로스 사이트 요청 방지 (더 강력하게)
       maxAge: 30 * 60 * 1000
     });
 
