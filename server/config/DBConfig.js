@@ -6,5 +6,6 @@ module.exports = {
   USER: process.env.DB_USER || 'root',
   PASSWORD: process.env.DB_PASSWORD || 'qwer1234', //임시PW
   DB: process.env.DB_NAME || 'CloudGuardian', //임시NAME
+  PORT: process.env.DB_PORT || 3306,
   dialect: 'mysql',
 };

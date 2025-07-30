@@ -1,6 +1,6 @@
-// app.js
 require('dotenv').config();
 const express = require('express');
+const cookieParser = require('cookie-parser');
 const cors = require('cors');
 const path = require('path');
 const authRoutes = require("./routes/AuthRoutes");
@@ -9,43 +9,45 @@ const db = require("./models");
 const { errorHandler } = require("./utils/Response");
 
 const app = express();
-const PORT = 3000;
+const PORT = process.env.PORT || 3000;
 
+// CORS 설정 (배포환경)
+const corsOptions = {
+  origin: 'https://www.cloudguardian.site',
+  methods: ['GET', 'POST', 'PUT', 'DELETE'],
+  credentials: true,
+};
+app.use(cors(corsOptions));
+
+/*
+// CORS 설정 (개발환경)
 app.use(cors({
-  origin: 'http://localhost:5173'
+  origin: 'http://localhost:5173',   // 클라이언트 주소
+  credentials: true                  // 쿠키 허용
 }));
+*/
 
-// console.log(process.env.JWT_SECRET);
-
-// JSON 파서 추가
+// JSON 파서
 app.use(express.json());
+
+// cookie 파서
+app.use(cookieParser());
+
+// API 라우터
 app.use("/api", postRoutes);
 app.use("/api/auth", authRoutes);
-
-// 정적 파일 제공 (선택: public 폴더에 CSS/JS 넣을 때)
-app.use(express.static(path.join(__dirname, 'public')));
-
-// console.log('⟡ dotenv.config() →', require('dotenv').config());
-
-// 루트 라우터
-app.get('/', (req, res) => {
-  res.send('<h1>Hello, Node.js 앱이 실행 중입니다!</h1>');
+app.get('/health', (req, res) => {
+  res.status(200).send('OK');
 });
 
-// DB 연결 및 서버 실행
-db.sequelize.sync().then(() => {
-  app.listen(PORT, () => 
-    console.log(`서버 실행 중: http://localhost:${PORT}`)
-  );
-});
-
-//사용 금지
-/* db.sequelize.sync({ force: true }).then(() => {
-  console.log('⚠️ DB 초기화됨 (force: true)');
-  app.listen(PORT, () =>
-    console.log(`서버 실행 중: http://localhost:${PORT}`)
-  );
-}); */
-
-// 에러 핸들러 사용
+// 에러 핸들러
 app.use(errorHandler);
+
+// DB 연결 및 서버 시작 (맨 마지막에 listen)
+db.sequelize.sync({ force: false }).then(() => {
+  app.listen(PORT, '0.0.0.0', () => 
+    console.log(`✅ 서버 실행 중: http://localhost:${PORT}`)
+  );
+}).catch(err => {
+  console.error("❌ DB 연결 실패:", err);
+});

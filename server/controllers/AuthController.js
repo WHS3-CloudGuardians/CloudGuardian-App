@@ -9,6 +9,7 @@ const User = db.User;
 exports.signup = async (req, res, next) => {
   // 요청 유효성 검사 결과 체크
   const errors = validationResult(req);
+  console.log('💡 회원가입 요청 데이터:', req.body);
   if (!errors.isEmpty()) {
     return res.status(400).json({
       status: 400,
@@ -65,11 +66,14 @@ exports.login = async (req, res, next) => {
       { expiresIn: process.env.JWT_EXPIRES_IN || "1h" }
     );
 
-    return successResponse(res, {
-      accessToken: token,
-      user: { id: user.id, email: user.email }
-    }, "로그인 성공");
+    res.cookie('jwt', token, {
+      httpOnly: true,       // JavaScript 접근 불가 → XSS 방지
+      secure: true,         // HTTPS에서만 쿠키 전송 → 중간자 공격 방지
+      sameSite: 'Strict',   // 크로스 사이트 요청 방지 (더 강력하게)
+      maxAge: 30 * 60 * 1000
+    });
 
+    return successResponse(res, { user: { id: user.id, email: user.email } }, "로그인 성공");
   } catch (err) {
     next(err);
   }
@@ -81,14 +85,15 @@ exports.getMyInfo = async (req, res, next) => {
     const user = await User.findByPk(req.user.id);
     if (!user) throw errorResponse("USER_NOT_FOUND");
 
-    res.json({
+    const myInfo = {
       email: user.email,
       username: user.username,
       name: user.name,
       gender: user.gender,
       birth: user.birthDate,
-    });
+    };
 
+    return successResponse(res, { user: myInfo }, "사용자 정보 조회 성공");
   } catch (err) {
     next(err);
   }

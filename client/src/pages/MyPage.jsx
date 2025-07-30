@@ -26,13 +26,14 @@ export default function MyPage() {
     if (!user) return;
     api.get('/auth/me')  // TODO: GET /api/auth/me
       .then(r => {
+        const me = r.data.data.user
         setInfo(f => ({
           ...f,
-          email: r.data.email,
-          username: r.data.username,
-          name: r.data.name,
-          gender: r.data.gender,
-          birthDate: r.data.birth,
+          email: me.email,
+          username: me.username,
+          name: me.name,
+          gender: me.gender,
+          birthDate: me.birth,
         }));
       });
   }, [user]);
