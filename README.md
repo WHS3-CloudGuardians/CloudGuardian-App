@@ -38,34 +38,8 @@ AWS 인프라가 실제로 작동하는지 테스트하기 위한 애플리케�
 
 
 ## 작동 방법
-### 테라폼으로 EC2인스턴스 생성시, 자동 배포
-user_data을 이용
-``` terraform
-user_data = base64encode(
-    templatefile("${path.module}/deploy.sh", {
-      rds_endpoint   = aws_db_instance.rds_db.endpoint
-      rds_secret_arn = data.aws_secretsmanager_secret.rds_secret.arn
-      DB_NAME        = aws_db_instance.rds_db.db_name
-    })
-```
 
-| 배포 방식     | 사용 스크립트 | 설명 |
-|---------------|----------------|------|
-| 단일 인스턴스  | `scripts/deploy.sh` | 프론트+백 한 서버에 배포 |
-| 이중 인스턴스  | `scripts/deploy-web.sh` / `scripts/deploy-app.sh` | 프론트/백 분리 배포 |
-
-> ⚠️ **주의**  
-> AWS SSM에서 시크릿(DB_PASSWORD, JWT_SECRET)을 가져오는 코드가 있습니다.  
-> → EC2에 적절한 IAM 역할 필요합니다.  
-> → SSM Parameter에 시크릿이 미리 준비되어 있어야 합니다.
-
-> 💡 `scripts/deploy-web.sh` 실행 시, 백엔드의 ALB DNS 또는 EC2 퍼블릭/프라이빗 DNS를 외부 주입해야 합니다.
-> (위 코드에서 rds_endpoint 외부 주입한 것과 동일하게)
-
----
-
-
-### 로컬에서 테스트(개발용) 작동
+### 개발 환경 작동
 - `/server`에 `.env` 생성 필요 (사용자 수정 필요)
 ```
 PORT=8080
@@ -92,6 +66,32 @@ cd server
 npm install
 npm run start
 ```
+---
+
+### 테라폼으로 EC2인스턴스 생성시, 자동 배포
+user_data을 이용
+``` terraform
+user_data = base64encode(
+    templatefile("${path.module}/deploy.sh", {
+      rds_endpoint   = aws_db_instance.rds_db.endpoint
+      rds_secret_arn = data.aws_secretsmanager_secret.rds_secret.arn
+      DB_NAME        = aws_db_instance.rds_db.db_name
+    })
+```
+
+| 배포 방식     | 사용 스크립트 | 설명 |
+|---------------|----------------|------|
+| 단일 인스턴스  | `scripts/deploy.sh` | 프론트+백 한 서버에 배포 |
+| 이중 인스턴스  | `scripts/deploy-web.sh` / `scripts/deploy-app.sh` | 프론트/백 분리 배포 |
+
+> ⚠️ **주의**  
+> AWS SSM에서 시크릿(DB_PASSWORD, JWT_SECRET)을 가져오는 코드가 있습니다.  
+> → EC2에 적절한 IAM 역할 필요합니다.  
+> → SSM Parameter에 시크릿이 미리 준비되어 있어야 합니다.
+
+> 💡 `scripts/deploy-web.sh` 실행 시, 백엔드의 ALB DNS 또는 EC2 퍼블릭/프라이빗 DNS를 외부 주입해야 합니다.
+> (위 코드에서 rds_endpoint 외부 주입한 것과 동일하게)
+> 
 
 
 ## ☁️ 개발 인원
