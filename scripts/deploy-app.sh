@@ -31,16 +31,16 @@ npm install
 echo "✅ ssm에서 값 가져오는 중..."
 # DB 비밀번호
 DB_PASSWORD=$(aws ssm get-parameter \
-  --name "/cloudguardian/DB_PASSWORD" \
+  --name "/DB_PASSWORD" \
   --with-decryption \
   --query "Parameter.Value" \
   --output text)
 # JWT_SECRET
-JWT_SECRET=$(aws ssm get-parameter \
-  --name "/cloudguardian/JWT_SECRET" \
+JWT_SECRET=${(aws ssm get-parameter \
+  --name "/JWT_SECRET" \
   --with-decryption \
   --query "Parameter.Value" \
-  --output text)
+  --output text)}
 # DB 설정
 DB_HOST=$(echo "${rds_endpoint}" | cut -d':' -f1)
 DB_USER="admin"
