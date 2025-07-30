@@ -66,7 +66,7 @@ user_data = base64encode(
 
 
 ### 로컬에서 테스트(개발용) 작동
-- `/server`에 `.env` 생성 필요
+- `/server`에 `.env` 생성 필요 (사용자 수정 필요)
 ```
 PORT=8080
 
@@ -92,6 +92,7 @@ cd server
 npm install
 npm run start
 ```
+
 
 ## ☁️ 개발 인원
 
