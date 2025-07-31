@@ -86,7 +86,7 @@ user_data = base64encode(
 
 > ⚠️ **주의**  
 > AWS SSM에서 시크릿(DB_PASSWORD, JWT_SECRET)을 가져오는 코드가 있습니다.  
-> → EC2에 적절한 IAM 역할 필요합니다.  
+> → EC2에 적절한 IAM 역할이 요구됩니다.  
 > → SSM Parameter에 시크릿이 미리 준비되어 있어야 합니다.
 
 > 💡 `scripts/deploy-web.sh` 실행 시, 백엔드의 ALB DNS 또는 EC2 퍼블릭/프라이빗 DNS를 외부 주입해야 합니다.
