@@ -1,7 +1,7 @@
 <div align="center">
 
 # CloudGuardians Board
-### AWS 환경 테스트 어플리케이션
+### AWS 환경 테스트 어플리케이션 (메인 아키텍처)
 
 [![README](https://img.shields.io/badge/-README-important?logo=markdown)]()  
 [![화이트햇 스쿨](https://img.shields.io/badge/화이트햇_스쿨_3기-blueviolet?style=flat)]() 
